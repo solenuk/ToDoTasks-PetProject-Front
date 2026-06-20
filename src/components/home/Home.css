@@ -1,0 +1,24 @@
+.home-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.home-container h1 {
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.home-container p {
+    color: #475569;
+    line-height: 1.6;
+}
+
+.home-container ul {
+    color: #475569;
+    list-style: disc inside;
+    padding-left: 0;
+}
