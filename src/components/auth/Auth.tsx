@@ -281,7 +281,7 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
                 <p className="toggle-text">
                     {isLogin ? "Don't have an account?" : 'Already have an account?'}
                     <span className="toggle-link" onClick={() => setIsLogin(!isLogin)}>
-            {isLogin ? ' Register' : ' Login'}
+            {isLogin ? 'Register' : 'Login'}
           </span>
                 </p>
             </div>

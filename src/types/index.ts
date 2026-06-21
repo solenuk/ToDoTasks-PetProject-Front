@@ -8,7 +8,6 @@ export interface User {
     role: UserRole;
 }
 
-
 export interface AuthResponse {
     token: string;
     user: User;
@@ -33,4 +32,28 @@ export type FieldErrors = {
     email?: string;
     password?: string;
     role?: string;
-};
+}
+
+export type TaskState = 'NEW' | 'DOING' | 'DONE';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export interface ResponseTaskDTO {
+    id: number;
+    title: string;
+    description: string;
+    state: TaskState;
+    priority: TaskPriority;
+    creatorId: number;
+    createdAt: string;
+    updatedAt: string;
+    collaboratorIds: number[];
+}
+
+export interface PaginatedResponseDTO<T> {
+    content: T[];
+    pageNo: number;
+    pageSize: number;
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+}
