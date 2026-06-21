@@ -57,3 +57,10 @@ export interface PaginatedResponseDTO<T> {
     totalPages: number;
     last: boolean;
 }
+
+export interface UpdateTaskDTO {
+    title: string;
+    description?: string;
+    state: TaskState;
+    priority: TaskPriority;
+}

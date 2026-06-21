@@ -1,7 +1,8 @@
-import {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {ResponseTaskDTO, PaginatedResponseDTO, User} from '../../types';
 import './Tasks.css';
 import TaskDetailModal from "../taskCard/TaskDetailModal";
+import EditTaskModal from "../editTask/EditTaskModal";
 
 interface TasksProps {
     token: string;
@@ -20,6 +21,7 @@ function Tasks({token, user}: Readonly<TasksProps>) {
         last: true,
     });
     const [selectedTask, setSelectedTask] = useState<ResponseTaskDTO | null>(null);
+    const [editingTask, setEditingTask] = useState<ResponseTaskDTO | null>(null);
 
     const fetchTasks = async (page: number = 0) => {
         setLoading(true);
@@ -66,6 +68,59 @@ function Tasks({token, user}: Readonly<TasksProps>) {
         setSelectedTask(null);
     };
 
+    const openEditModal = (task: ResponseTaskDTO, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingTask(task);
+    };
+
+    const closeEditModal = () => setEditingTask(null)
+
+    const handleTaskUpdated = (updatedTask: ResponseTaskDTO) => {
+        // Update the task in the list
+        setTasks((prev) =>
+            prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+        );
+        // Also update the selected task if it's the same
+        if (selectedTask && selectedTask.id === updatedTask.id) {
+            setSelectedTask(updatedTask);
+        }
+    };
+
+    // Delete handler
+    const handleDelete = async (taskId: number, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!globalThis.confirm('Are you sure you want to delete this task?')) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!response.ok) throw new Error('Failed to delete task');
+
+            setTasks((prev) => prev.filter((t) => t.id !== taskId));
+            if (selectedTask && selectedTask.id === taskId) {
+                closeModal();
+            }
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Could not delete task');
+        }
+    };
+
+    // Conditionally render action buttons
+    const renderActions = (task: ResponseTaskDTO) => {
+        const isCreator = task.creatorId === user.id;
+        if (!isCreator) {
+            return <span className="no-action">—</span>;
+        }
+        return (
+            <div className="action-buttons">
+                <button className="btn-edit" onClick={(e) => openEditModal(task, e)}>Edit</button>
+                <button className="btn-delete" onClick={(e) => handleDelete(task.id, e)}>Delete</button>
+            </div>
+        );
+    };
+
     if (loading) return <div className="todos-loading">Loading tasks...</div>;
     if (error) return <div className="todos-error">Error: {error}</div>;
 
@@ -104,10 +159,7 @@ function Tasks({token, user}: Readonly<TasksProps>) {
                                     <td><span>{task.priority}</span></td>
                                     <td><span>{task.state}</span></td>
                                     <td onClick={(e) => e.stopPropagation()}>
-                                        <div className="action-buttons">
-                                            <button className="btn-edit">Edit</button>
-                                            <button className="btn-delete">Delete</button>
-                                        </div>
+                                        {renderActions(task)}
                                     </td>
                                 </tr>
                             ))}
@@ -127,7 +179,20 @@ function Tasks({token, user}: Readonly<TasksProps>) {
             )}
 
             {selectedTask && (
-                <TaskDetailModal task={selectedTask} token={token} currentUserId={user.id} onClose={closeModal}/>
+                <TaskDetailModal
+                    task={selectedTask}
+                    token={token}
+                    currentUserId={user.id}
+                    onClose={closeModal}
+                />
+            )}
+            {editingTask && (
+                <EditTaskModal
+                    task={editingTask}
+                    token={token}
+                    onClose={closeEditModal}
+                    onTaskUpdated={handleTaskUpdated}
+                />
             )}
         </div>
     );
