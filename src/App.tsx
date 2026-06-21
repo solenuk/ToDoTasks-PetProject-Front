@@ -94,7 +94,14 @@ function App() {
                         <Route path="/profile"
                                element={<Profile user={user!} token={token!} onUserUpdated={handleUserUpdated}/>}/>
                         {/* Admin-only routes – we'll protect them later, but for now just render */}
-                        <Route path="/admin/todos" element={<AllTasks/>}/>
+                        <Route
+                            path="/admin/todos"
+                            element={
+                                <ProtectedAdminRoute>
+                                    <AllTasks token={token!} user={user!} />
+                                </ProtectedAdminRoute>
+                            }
+                        />
                         <Route
                             path="/admin/users"
                             element={
