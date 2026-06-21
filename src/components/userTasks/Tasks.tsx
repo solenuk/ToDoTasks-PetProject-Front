@@ -1,8 +1,9 @@
-import React, {useState, useEffect} from 'react';
-import {ResponseTaskDTO, PaginatedResponseDTO, User} from '../../types';
+import React, {useEffect, useState} from 'react';
+import {PaginatedResponseDTO, ResponseTaskDTO, User} from '../../types';
 import './Tasks.css';
 import TaskDetailModal from "../taskCard/TaskDetailModal";
 import EditTaskModal from "../editTask/EditTaskModal";
+import CreateTaskModal from '../createTask/CreateTaskModal'
 
 interface TasksProps {
     token: string;
@@ -22,6 +23,7 @@ function Tasks({token, user}: Readonly<TasksProps>) {
     });
     const [selectedTask, setSelectedTask] = useState<ResponseTaskDTO | null>(null);
     const [editingTask, setEditingTask] = useState<ResponseTaskDTO | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
 
     const fetchTasks = async (page: number = 0) => {
         setLoading(true);
@@ -94,7 +96,7 @@ function Tasks({token, user}: Readonly<TasksProps>) {
         try {
             const response = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
                 method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             if (!response.ok) throw new Error('Failed to delete task');
 
@@ -106,6 +108,19 @@ function Tasks({token, user}: Readonly<TasksProps>) {
             alert(err instanceof Error ? err.message : 'Could not delete task');
         }
     };
+
+    const handleCreate = () => {
+        setShowCreateModal(true);
+    };
+
+    const handleTaskCreated = (newTask: ResponseTaskDTO) => {
+        setTasks((prev) => [newTask, ...prev]);
+        if (pagination.pageNo !== 0) {
+            fetchTasks(0);
+        }
+    };
+
+    const closeCreateModal = () => setShowCreateModal(false);
 
     // Conditionally render action buttons
     const renderActions = (task: ResponseTaskDTO) => {
@@ -128,7 +143,7 @@ function Tasks({token, user}: Readonly<TasksProps>) {
         <div className="todos-container">
             <div className="todos-header">
                 <h2>All Tasks from {user.firstName}'s To-Do</h2>
-                <button className="btn-create">Create New Task</button>
+                <button className="btn-create" onClick={handleCreate}>Create New Task</button>
             </div>
 
             {tasks.length === 0 ? (
@@ -192,6 +207,14 @@ function Tasks({token, user}: Readonly<TasksProps>) {
                     token={token}
                     onClose={closeEditModal}
                     onTaskUpdated={handleTaskUpdated}
+                />
+            )}
+
+            {showCreateModal && (
+                <CreateTaskModal
+                    token={token}
+                    onClose={closeCreateModal}
+                    onTaskCreated={handleTaskCreated}
                 />
             )}
         </div>

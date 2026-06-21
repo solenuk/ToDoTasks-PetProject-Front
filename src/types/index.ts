@@ -64,3 +64,9 @@ export interface UpdateTaskDTO {
     state: TaskState;
     priority: TaskPriority;
 }
+
+export interface CreateTaskDTO {
+    title: string;
+    description?: string;
+    priority: TaskPriority;
+}
