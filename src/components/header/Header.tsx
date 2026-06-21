@@ -14,22 +14,22 @@ function Header({user, onLogout}: Readonly<HeaderProps>) {
                 <span className="logo">TodoApp</span>
             </div>
             <nav className="header-nav">
-                <NavLink to="/" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                <NavLink to="/" className={({isActive}) => `nav-link ${isActive ? 'active' : ''} nav-btn`}>
                     Home
                 </NavLink>
-                <NavLink to="/tasks" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                <NavLink to="/tasks" className={({isActive}) => `nav-link ${isActive ? 'active' : ''} nav-btn`}>
                     My Todos
                 </NavLink>
-                <NavLink to="/profile" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                <NavLink to="/profile" className={({isActive}) => `nav-link ${isActive ? 'active' : ''} nav-btn`}>
                     Edit Profile
                 </NavLink>
 
                 {user.role === 'ADMIN_ROLE' && (
                     <>
-                        <NavLink to="/admin/todos" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                        <NavLink to="/admin/todos" className={({isActive}) => `nav-link ${isActive ? 'active' : ''} nav-btn`}>
                             All Todos
                         </NavLink>
-                        <NavLink to="/admin/users" className={({isActive}) => `nav-link ${isActive ? 'active' : ''}`}>
+                        <NavLink to="/admin/users" className={({isActive}) => `nav-link ${isActive ? 'active' : ''} nav-btn`}>
                             All Users
                         </NavLink>
                     </>

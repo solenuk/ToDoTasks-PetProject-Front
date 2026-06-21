@@ -70,3 +70,10 @@ export interface CreateTaskDTO {
     description?: string;
     priority: TaskPriority;
 }
+
+export interface UpdateUserDTO {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: UserRole;
+}

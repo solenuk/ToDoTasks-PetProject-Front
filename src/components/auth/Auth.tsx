@@ -147,8 +147,6 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
 
             const authData = data as AuthResponse;
             const { token, user } = authData;
-            console.log('Authentication successful:', user);
-
             onLoginSuccess(token, user);
         } catch (error) {
             console.error('Network error:', error);

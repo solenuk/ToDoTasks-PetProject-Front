@@ -1,5 +1,5 @@
-import {useEffect, useState} from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Routes, Route, Navigate, useNavigate} from 'react-router-dom';
 import Auth from './components/auth/Auth';
 import Header from "./components/header/Header";
 import Home from "./components/home/Home";
@@ -11,6 +11,8 @@ import AllUsers from "./components/allUsers/AllUsers";
 import AllTasks from "./components/allTasks/AllTasks";
 
 function App() {
+    const navigate = useNavigate();
+
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [token, setToken] = useState<string | null>(null);
@@ -49,6 +51,7 @@ function App() {
         setUser(userData);
         setIsAuthenticated(true);
         localStorage.setItem('token', jwtToken);
+        navigate('/');
     };
 
     const handleLogout = () => {
@@ -56,6 +59,17 @@ function App() {
         setUser(null);
         setIsAuthenticated(false);
         localStorage.removeItem('token');
+        navigate('/');
+    };
+    const handleUserUpdated = (updatedUser: User) => {
+        setUser(updatedUser);
+    };
+
+    const ProtectedAdminRoute = ({children}: { children: React.ReactNode }) => {
+        if (user?.role !== 'ADMIN_ROLE') {
+            return <Navigate to="/" replace/>;
+        }
+        return <>{children}</>;
     };
 
     if (isLoading) {
@@ -67,27 +81,32 @@ function App() {
     }
 
     if (!isAuthenticated) {
-        return <Auth onLoginSuccess={handleLoginSuccess} />;
+        return <Auth onLoginSuccess={handleLoginSuccess}/>;
     }
 
     return (
-        <BrowserRouter>
             <div className="app">
-                <Header user={user!} onLogout={handleLogout} />
+                <Header user={user!} onLogout={handleLogout}/>
                 <main>
                     <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/tasks" element={<Tasks token={token!} user={user!}/>} />
-                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/" element={<Home/>}/>
+                        <Route path="/tasks" element={<Tasks token={token!} user={user!}/>}/>
+                        <Route path="/profile"
+                               element={<Profile user={user!} token={token!} onUserUpdated={handleUserUpdated}/>}/>
                         {/* Admin-only routes – we'll protect them later, but for now just render */}
-                        <Route path="/admin/todos" element={<AllTasks />} />
-                        <Route path="/admin/users" element={<AllUsers />} />
-                        {/* Redirect any unknown paths to home */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
+                        <Route path="/admin/todos" element={<AllTasks/>}/>
+                        <Route
+                            path="/admin/users"
+                            element={
+                                <ProtectedAdminRoute>
+                                    <AllUsers token={token!} currentUser={user!}/>
+                                </ProtectedAdminRoute>
+                            }
+                        />
+                        <Route path="*" element={<Navigate to="/" replace/>}/>
                     </Routes>
                 </main>
             </div>
-        </BrowserRouter>
     );
 }
 
