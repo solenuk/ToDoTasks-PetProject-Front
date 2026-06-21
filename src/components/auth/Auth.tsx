@@ -15,7 +15,6 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
     const [lastName, setLastName]  = useState<string>('');
     const [email, setEmail]        = useState<string>('');
     const [password, setPassword]  = useState<string>('');
-    const [role, setRole]          = useState<UserRole>('USER_ROLE');
 
     // UI state
     const [errors, setErrors] = useState<FieldErrors>({});
@@ -74,12 +73,6 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
         clearFieldError(field);
     };
 
-    // ----- Role change (dropdown) -----
-    const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setRole(e.target.value as UserRole);
-        clearFieldError('role');
-    };
-
     // ----- Submit: final check + API call -----
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -89,7 +82,7 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
         const newErrors: FieldErrors = {};
         const fieldsToValidate: (keyof FieldErrors)[] = isLogin
             ? ['email', 'password']
-            : ['firstName', 'lastName', 'email', 'password', 'role'];
+            : ['firstName', 'lastName', 'email', 'password'];
 
         for (const field of fieldsToValidate) {
             let value = '';
@@ -97,14 +90,9 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
             else if (field === 'lastName') value = lastName;
             else if (field === 'email') value = email;
             else if (field === 'password') value = password;
-            else if (field === 'role') value = role;
 
-            if (field === 'role') {
-                if (!role) newErrors.role = 'Role is required';
-            } else {
-                const err = validateField(field, value);
-                if (err) newErrors[field] = err;
-            }
+            const err = validateField(field, value);
+            if (err) newErrors[field] = err;
         }
 
         if (Object.keys(newErrors).length > 0) {
@@ -129,7 +117,7 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
                     lastName: lastName.trim(),
                     email,
                     password,
-                    role,
+                    role: "USER_ROLE",
                 };
             }
 
@@ -249,27 +237,6 @@ function Auth({ onLoginSuccess }: Readonly<AuthProps>) {
                         />
                         {renderError('password')}
                     </div>
-
-                    {/* Role Dropdown (Register only) */}
-                    {!isLogin && (
-                        <div className="form-group">
-                            <label htmlFor="role">Role</label>
-                            <select
-                                id="role"
-                                value={role}
-                                onChange={handleRoleChange}
-                                onBlur={() => {
-                                    if (!role) setErrors((prev) => ({ ...prev, role: 'Role is required' }));
-                                    else clearFieldError('role');
-                                }}
-                                className={errors.role ? 'error-input' : ''}
-                            >
-                                <option value="USER_ROLE">User</option>
-                                <option value="ADMIN_ROLE">Admin</option>
-                            </select>
-                            {renderError('role')}
-                        </div>
-                    )}
 
                     {generalError && <div className="general-error">{generalError}</div>}
 
